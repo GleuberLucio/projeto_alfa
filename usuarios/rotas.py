@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from .controllers import criar_usuario, buscar_usuario_por_email, listar_usuarios
+from auth.controllers import renovar_token
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/api/usuarios')
 
@@ -31,3 +33,19 @@ def rota_buscar_usuario_por_email(email):
         return jsonify(response), 200
     else:
         return jsonify({'message': 'Usuário não encontrado.'}), 404
+    
+@usuarios_bp.route('/protegido', methods=['GET'])
+@jwt_required()
+def rota_protegido():
+    return jsonify({'message': 'Rota protegida acessada com sucesso!'}), 200
+
+@usuarios_bp.route('/refresh', methods=['GET'])
+@jwt_required(refresh=True)
+def rota_refresh():
+    """Rota para atualizar o token de acesso."""
+    usuario_id = get_jwt_identity()
+    access_token = renovar_token(usuario_id)
+    return jsonify({
+        'access_token': access_token,
+        'message': 'Rota protegida acessada com sucesso!'
+    }), 200

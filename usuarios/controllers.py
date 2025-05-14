@@ -27,8 +27,11 @@ def criar_usuario(data):
     if Usuario.buscar_por_email(email):
         raise ValueError("Usuário já cadastrado.")
     
+    usuario = Usuario(nome=nome, email=email)
     
-    usuario = Usuario(nome=nome, email=email, senha=senha)
+    # Define a senha hash usando o método definido na classe Usuario
+    usuario.definir_senha(senha)
+    
     db.session.add(usuario)
     db.session.commit()
     return usuario
