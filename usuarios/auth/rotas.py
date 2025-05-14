@@ -19,7 +19,12 @@ def login():
     senha = data['senha']
 
     try:
-        token = autenticar_usuario(email, senha)
-        return jsonify({"token": token}), 200
+        tokens = autenticar_usuario(email, senha)
+        acess_token = tokens['access_token']
+        refresh_token = tokens['refresh_token']
+        
+        return jsonify({"acess_token": acess_token,
+                        "refresh_token": refresh_token
+                        }), 200
     except ValueError as e:
         return jsonify({"msg": str(e)}), 401
