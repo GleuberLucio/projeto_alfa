@@ -1,29 +1,33 @@
+import sys
+import os
 from flask import Flask
 from config import Config
-from usuarios.models import db
-from flask_migrate import Migrate
-from usuarios.rotas import usuarios_bp
-from usuarios.auth.rotas import auth_bp
+
+from extensions import db, migrate, mail
 from flask_jwt_extended import JWTManager
+
+# Adiciona o diretório do projeto ao sys.path para garantir que os pacotes sejam encontrados
+sys.path.append(os.path.join(os.path.dirname(__file__), 'usuarios'))
+
+from models.usuarios.models import db
+from models.usuarios.rotas import usuarios_bp
+from auth.rotas import auth_bp
 
 
 app = Flask(__name__)
-
-migrate = Migrate()
-
-# Configuração do banco de dados
 app.config.from_object(Config)
 
-# Inicializa o banco de dados
+# Inicializa as extensões
 db.init_app(app)
 migrate.init_app(app, db)
+mail.init_app(app)
+JWTManager(app)
+
 
 # Registra o blueprints (rotas)
 app.register_blueprint(usuarios_bp)
 app.register_blueprint(auth_bp)
 
-# Configuração do JWT
-JWTManager(app)
 
 # Cria o banco de dados
 with app.app_context():

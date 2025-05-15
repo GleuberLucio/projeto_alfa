@@ -1,4 +1,4 @@
-from usuarios.models import Usuario
+from models.usuarios.models import Usuario
 from flask_jwt_extended import create_access_token, create_refresh_token
 from datetime import timedelta
 

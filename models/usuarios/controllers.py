@@ -1,4 +1,5 @@
-from .models import Usuario, db
+from .models import Usuario
+from extensions import db
 from .schemas import UsuarioSchema
 from marshmallow import ValidationError
 

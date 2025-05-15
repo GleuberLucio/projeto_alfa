@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .controllers import criar_usuario, buscar_usuario_por_email, listar_usuarios
-from usuarios.auth.controllers import renovar_token
+from auth.controllers import renovar_token
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/api/usuarios')
 

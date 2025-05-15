@@ -1,5 +1,7 @@
 from flask import Blueprint, request, jsonify
 from .controllers import autenticar_usuario
+from models.usuarios.models import Usuario
+from .email_utils import enviar_email_recuperacao
 
 # Criando o Blueprint para autenticação de usuários
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
@@ -28,3 +30,30 @@ def login():
                         }), 200
     except ValueError as e:
         return jsonify({"msg": str(e)}), 401
+    
+@auth_bp.route('/recuperar_senha', methods=['POST'])
+def recuperar_senha():
+    """
+    Rota para recuperação de senha.
+    Recebe um JSON com 'email' e envia um email de recuperação.
+    """
+    data = request.get_json()
+    
+    if not data or 'email' not in data:
+        return jsonify({"msg": "Email é obrigatório."}), 400
+
+    email = data['email']
+    
+    usuario = Usuario.buscar_por_email(email)
+    if not usuario:
+        return jsonify({"msg": "Email não encontrado."}), 404
+
+    if enviar_email_recuperacao(
+        email_destino=email,
+        assunto="Recuperação de Senha",
+        corpo="Clique no link para redefinir sua senha: [link]"
+        ):
+    
+        return jsonify({"msg": "Email de recuperação enviado."}), 200
+
+    return jsonify({"msg": "Erro ao enviar email de recuperação."}), 500
