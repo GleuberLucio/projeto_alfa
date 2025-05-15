@@ -13,6 +13,7 @@ def criar_usuario(data):
     :return: O usuário criado.
     """
     try:
+        # 1ª Validação de dados
         # Valida os dados de entrada usando o esquema definido no marshmallow
         # Isso garante que os dados estejam no formato correto e atendam às regras de validação
         dados_validos = usuario_schema.load(data)
@@ -27,6 +28,13 @@ def criar_usuario(data):
     if Usuario.buscar_por_email(email):
         raise ValueError("Usuário já cadastrado.")
     
+    # 2ª Validação de dados
+    # Valida a senha e a confirmação da senha
+    erros = usuario_schema.validate(dados_validos)
+    if erros:
+        raise ValueError(f"Dados inválidos: {erros}")
+
+    # Após validação, cria o usuário com os dados fornecidos    
     usuario = Usuario(nome=nome, email=email)
     
     # Define a senha hash usando o método definido na classe Usuario

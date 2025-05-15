@@ -5,7 +5,7 @@ from usuarios.auth.controllers import renovar_token
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/api/usuarios')
 
-@usuarios_bp.route('/', methods=['POST'])
+@usuarios_bp.route('/cadastro', methods=['POST'])
 def rota_criar_usuario():
     dados = request.get_json()
     try:
