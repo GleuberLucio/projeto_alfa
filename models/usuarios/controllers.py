@@ -50,3 +50,24 @@ def listar_usuarios():
 
 def buscar_usuario_por_email(email):
     return Usuario.buscar_por_email(email)
+
+def buscar_usuario_por_id(id):
+    return Usuario.buscar_por_id(id)
+
+def redefinir_senha(usuario, nova_senha, confirmar_senha):
+    """
+    Redefine a senha do usuário.
+    
+    :param usuario: O usuário cujo a senha será redefinida.
+    :type usuario: Usuario
+    :param nova_senha: A nova senha a ser definida.
+    :type nova_senha: str
+    """
+    erros = usuario_schema.validate({'nome': usuario.nome, 'email': usuario.email, 'senha': nova_senha, 'confirmar_senha': confirmar_senha})
+    if erros:
+        raise ValueError(f"Dados inválidos: {erros}")
+    
+    usuario.definir_senha(nova_senha)
+    usuario.nome = 'Thalyta Machado'
+    db.session.commit()
+    db.session.flush()

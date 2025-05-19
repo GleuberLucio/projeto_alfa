@@ -43,7 +43,7 @@ def gerar_token_recuperacao(usuario_id):
     """Gera um token de recuperação de senha."""
     
     # Gera um token de recuperação
-    token_recuperacao = create_access_token(identity=usuario_id, 
+    token_recuperacao = create_access_token(identity=str(usuario_id), 
                                             expires_delta=timedelta(minutes=15),
                                             additional_claims={"recuperacao": True})
     

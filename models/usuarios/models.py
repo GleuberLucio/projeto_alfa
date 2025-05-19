@@ -19,6 +19,9 @@ class Usuario(db.Model):
     def listar_usuarios(cls):
         return cls.query.all()
     
+    @classmethod
+    def buscar_por_id(cls, id):
+        return cls.query.get(id)
     
     def definir_senha(self, senha):
         """Criptografa e guarda o hash da senha"""

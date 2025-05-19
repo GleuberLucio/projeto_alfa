@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from .controllers import criar_usuario, buscar_usuario_por_email, listar_usuarios
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from .controllers import criar_usuario, buscar_usuario_por_email, listar_usuarios, redefinir_senha, buscar_usuario_por_id
 from auth.controllers import renovar_token
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/api/usuarios')
@@ -49,3 +49,31 @@ def rota_refresh():
         'access_token': access_token,
         'message': 'Rota protegida acessada com sucesso!'
     }), 200
+    
+@usuarios_bp.route('/recuperar_senha', methods=['POST'])
+@jwt_required()
+def rota_recuperar_senha():
+    """
+    Rota para recuperação de senha.
+    Recebe um JSON com 'email' e envia um email de recuperação.
+    """
+    claims = get_jwt()
+    
+    if not claims.get('recuperacao'):
+        return jsonify({"msg": "Token inválido para esta operação."}), 403
+    
+    dados = request.get_json()
+    nova_senha = dados.get('nova_senha')
+    confirmar_senha = dados.get('confirmar_senha')
+    
+    if nova_senha != confirmar_senha:
+        return jsonify({"msg": "As senhas não coincidem."}), 400
+    
+    usuario_id = get_jwt_identity()
+    usuario = buscar_usuario_por_id(usuario_id)
+    if not usuario:
+        return jsonify({"msg": "Usuário não encontrado."}), 404
+    
+    redefinir_senha(usuario, nova_senha, confirmar_senha)
+    
+    return jsonify({"msg": f"{usuario.nome}, A recuperação de senha foi realizada com sucesso."}), 200
