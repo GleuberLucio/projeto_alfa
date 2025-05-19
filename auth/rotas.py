@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from .controllers import autenticar_usuario
+from .controllers import autenticar_usuario, gerar_token_recuperacao
 from models.usuarios.models import Usuario
 from .email_utils import enviar_email_recuperacao
 
@@ -47,11 +47,18 @@ def recuperar_senha():
     usuario = Usuario.buscar_por_email(email)
     if not usuario:
         return jsonify({"msg": "Email não encontrado."}), 404
-
+    
+    token_recuperacao = gerar_token_recuperacao(usuario.id)
+    link_recuperacao = f"http://localhost:8000/recuperar_senha?token={token_recuperacao}"
+    
     if enviar_email_recuperacao(
         email_destino=email,
         assunto="Recuperação de Senha",
-        corpo="Clique no link para redefinir sua senha: [link]"
+        corpo=f"Olá {usuario.nome}," + 
+        "\nRecebemos uma solicitação para redefinir sua senha.\n" + 
+        "\nSe você não solicitou essa alteração, ignore este email.\n" + 
+        f"\nClique no link para redefinir sua senha: {link_recuperacao}" + 
+        "\n*Valido por 15 minutos."
         ):
     
         return jsonify({"msg": "Email de recuperação enviado."}), 200

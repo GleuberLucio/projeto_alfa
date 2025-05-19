@@ -38,3 +38,13 @@ def renovar_token(usuario_id):
     access_token = create_access_token(identity=usuario_id, expires_delta=timedelta(hours=1))
     
     return {"access_token": access_token}
+
+def gerar_token_recuperacao(usuario_id):
+    """Gera um token de recuperação de senha."""
+    
+    # Gera um token de recuperação
+    token_recuperacao = create_access_token(identity=usuario_id, 
+                                            expires_delta=timedelta(minutes=15),
+                                            additional_claims={"recuperacao": True})
+    
+    return token_recuperacao
