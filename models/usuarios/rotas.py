@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
-from .controllers import criar_usuario, buscar_usuario_por_email, listar_usuarios, redefinir_senha, buscar_usuario_por_id
+from .controllers import criar_usuario, buscar_usuario_por_email, listar_usuarios, redefinir_senha, buscar_usuario_por_id, atualizar_usuario, excluir_usuario
 from auth.controllers import renovar_token
 
 usuarios_bp = Blueprint('usuarios', __name__, url_prefix='/api/usuarios')
@@ -77,3 +77,43 @@ def rota_recuperar_senha():
     redefinir_senha(usuario, nova_senha, confirmar_senha)
     
     return jsonify({"msg": f"{usuario.nome}, A recuperação de senha foi realizada com sucesso."}), 200
+
+@usuarios_bp.route('/atualizar', methods=['PUT'])
+@jwt_required()
+def rota_atualizar_usuario():
+    """
+    Rota para atualizar dados do usuário.
+    Recebe um JSON com 'nome', 'email', 'senha' e 'confirmar_senha'.
+    """
+    dados = request.get_json()
+    nova_senha = dados.get('senha')
+    confirmar_senha = dados.get('confirmar_senha')
+    
+    if nova_senha != confirmar_senha:
+        return jsonify({"msg": "As senhas não coincidem."}), 400
+    
+    usuario_id = get_jwt_identity()
+    usuario = buscar_usuario_por_id(usuario_id)
+    
+    if not usuario:
+        return jsonify({"msg": "Usuário não encontrado."}), 404
+    
+    atualizar_usuario(usuario, dados)
+    
+    return jsonify({"msg": f"{usuario.nome}, atualização concluída."}), 200
+
+@usuarios_bp.route('/excluir', methods=['DELETE'])
+@jwt_required()
+def rota_excluir_usuario():
+    """
+    Rota para excluir o usuário autenticado.
+    """
+    usuario_id = get_jwt_identity()
+    usuario = buscar_usuario_por_id(usuario_id)
+    
+    if not usuario:
+        return jsonify({"msg": "Usuário não encontrado."}), 404
+    
+    excluir_usuario(usuario)
+    
+    return jsonify({"msg": f"{usuario.nome}, sua conta foi excluída com sucesso."}), 200

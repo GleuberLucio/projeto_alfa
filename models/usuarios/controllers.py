@@ -63,11 +63,60 @@ def redefinir_senha(usuario, nova_senha, confirmar_senha):
     :param nova_senha: A nova senha a ser definida.
     :type nova_senha: str
     """
-    erros = usuario_schema.validate({'nome': usuario.nome, 'email': usuario.email, 'senha': nova_senha, 'confirmar_senha': confirmar_senha})
-    if erros:
-        raise ValueError(f"Dados inválidos: {erros}")
+    try:
+        erros = usuario_schema.validate({'nome': usuario.nome, 'email': usuario.email, 'senha': nova_senha, 'confirmar_senha': confirmar_senha})
+        
+        if erros:
+            raise ValueError(f"Dados inválidos: {erros}")
+
+        usuario.definir_senha(nova_senha)
+        db.session.commit()
     
-    usuario.definir_senha(nova_senha)
-    usuario.nome = 'Thalyta Machado'
-    db.session.commit()
-    db.session.flush()
+    except Exception as err:
+        db.session.rollback()
+        raise ValueError(f"Erro ao redefinir senha: {err}")
+    
+
+def atualizar_usuario(usuario, data):
+    """
+    Atualiza os dados do usuário.
+    
+    :param usuario: O usuário a ser atualizado.
+    :type usuario: Usuario
+    :param data: Dicionário com os novos dados do usuário. {nome: str, email: str, senha: str}
+    :type data: dict
+    """
+    try:
+        # Valida os dados de entrada usando o esquema definido no marshmallow
+        dados_validos = usuario_schema.load(data)
+        
+        erros = usuario_schema.validate(dados_validos)
+        if erros:
+            raise ValueError(f"Dados inválidos: {erros}")
+        
+        # Atualiza os atributos do usuário
+        usuario.nome = dados_validos['nome']
+        usuario.email = dados_validos['email']
+        
+        if 'senha' in dados_validos and 'confirmar_senha' in dados_validos:
+            usuario.definir_senha(dados_validos['senha'])
+        
+        db.session.commit()
+        return usuario
+    
+    except ValidationError as err:
+        raise ValueError(f"Dados inválidos: {err.messages}")
+    
+def excluir_usuario(usuario):
+    """
+    Exclui um usuário do banco de dados.
+    
+    :param usuario: O usuário a ser excluído.
+    :type usuario: Usuario
+    """
+    try:
+        db.session.delete(usuario)
+        db.session.commit()
+    except Exception as err:
+        db.session.rollback()
+        raise ValueError(f"Erro ao excluir usuário: {err}")

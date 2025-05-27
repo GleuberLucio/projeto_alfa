@@ -58,7 +58,7 @@ def recuperar_senha():
         "\nRecebemos uma solicitação para redefinir sua senha.\n" + 
         "\nSe você não solicitou essa alteração, ignore este email.\n" + 
         f"\nClique no link para redefinir sua senha: {link_recuperacao}" + 
-        "\n*Valido por 15 minutos."
+        "\n\n*Valido por 15 minutos."
         ):
     
         return jsonify({"msg": "Email de recuperação enviado."}), 200

@@ -1,7 +1,6 @@
-from flask_sqlalchemy import SQLAlchemy
+from extensions import db
 from passlib.hash import pbkdf2_sha256 as sha256
 
-db = SQLAlchemy()
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'

@@ -4,7 +4,8 @@ class Config:
     # Configuração do banco de dados (SQLite)
     database_name = 'database'
     SQLALCHEMY_DATABASE_URI = f'sqlite:///{database_name}.db'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False # Desativa o rastreamento de modificações para economizar memória
+    SQLALCHEMY_ECHO = False  # Ativa o log de SQL para depuração
     JWT_SECRET_KEY = 'minha_chave_super_secreta'
     
     # Configuração do Flask-Mail
